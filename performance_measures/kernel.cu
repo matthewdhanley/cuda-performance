@@ -7,6 +7,9 @@
 #include <time.h>
 #include <stdlib.h>  // used for rand()
 
+#include "cuda_err_check.h"
+
+
 //============================= CPU ===========================================
 /*
 This function is called by the CPU
@@ -27,7 +30,7 @@ void cpu_add(float *a, float *b, float *c, int N) {
 }
 
 
-//============================= GPU Kernel ====================================
+//============================= GPU Kernels ====================================
 /*
 The "__global__" tag tells nvcc that the function will execute on the device
 but will be called from the host. Notice that we must use pointers!
@@ -40,24 +43,44 @@ but will be called from the host. Notice that we must use pointers!
  *  b - second array
  *  c - output array
  */
-__global__ void cuda_add(float *a, float *b, float *c, int N) {
+__global__ void cuda_add(float *a, float *b, float *c, unsigned long long N) {
 	// assign tid by using block id, block dimension, and thread id
-	int tid = blockIdx.x * blockDim.x + threadIdx.x;
+	unsigned long long tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+	// stride is for big arrays, i.e. bigger than threads we have
+	unsigned long long stride = blockDim.x * gridDim.x;
 
 	// do the operations
-	if (tid < N) {
+	while (tid < N) {
 		c[tid] = a[tid] + b[tid];
+		tid += stride;
+	}
+}
+
+__global__ void init(float *x, float *y, unsigned long long N) {
+	int index = threadIdx.x + blockIdx.x * blockDim.x;
+	int stride = blockDim.x * gridDim.x;
+	for (int i = index; i < N; i += stride) {
+		x[i] = 1.0f;
+		y[i] = 2.0f;
 	}
 }
 
 
 int main(){
+	// need to "wake up" the api. This adsorbs the startup overhead that was
+	// biasing my results
+	cudaFree(0);
+
 	// size of the array
-    const int N = 1000000000;
+    //const unsigned long long N = 1000000000;
+    //const unsigned long long N = 100000000;
+    const unsigned long long N = 1048576;
+    //const unsigned long long N = 10000;
 	printf("Array Size: %d\n", N);
 
 	// how many times to run it?
-	int iterations = 10;
+	int iterations = 1;
 
 	// DEVICE PROPERTIES
 	cudaDeviceProp prop;
@@ -81,11 +104,6 @@ int main(){
 	float *c = (float *)malloc(N * sizeof(float));
 	float *d_a, *d_b, *d_c;
 
-	// set up timer
-	cudaEvent_t start, stop;
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
-
 	// using max number of threads in the x dim possible
 	int nThreads = prop.maxThreadsDim[0];
 	printf("nThreads: %d\n", nThreads);
@@ -94,112 +112,74 @@ int main(){
 	int nBlocks = (N + nThreads - 1) / nThreads;
 	printf("nBlocks: %d\n", nBlocks);
 
-
-	// init the timer variable
-	float millis = 0;
-
-	// open file for keeping track of stats.
-	FILE *f = fopen("gpu_add_times.txt", "a");
-
-	// error handling for file open
-	if (f == NULL)
-	{
-		printf("Error opening file!\n");
-		exit(1);
-	}
-
-	printf("\nRunning %d iterations of add on CPU and GPU\n", iterations);
-	printf("Saving execution times to gpu_add_times.txt and cpu_add_times.txt\n");
-
 	// allocate memory once before the iterations
-	cudaMalloc((void **)&d_a, sizeof(float) * N);
-	cudaMalloc((void **)&d_b, sizeof(float) * N);
-	cudaMalloc((void **)&d_c, sizeof(float) * N);
-	printf("Allocated memory on the Device for a, b, and c . . .\n");
+	//CudaSafeCall( cudaMallocManaged(&a, sizeof(float) * N) );
+	//CudaSafeCall( cudaMallocManaged(&b, sizeof(float) * N) );
+	//CudaSafeCall( cudaMallocManaged(&c, sizeof(float) * N) );
 
-	float avg = 0;
+	//CudaSafeCall( cudaMalloc((void**) &d_a, sizeof(float) * N) );
+	//CudaSafeCall( cudaMalloc((void**) &d_b, sizeof(float) * N) );
+	//CudaSafeCall( cudaMalloc((void**) &d_c, sizeof(float) * N) );
+	cudaMalloc((float**) &d_a, sizeof(float) * N);
+	cudaMalloc((float**) &d_b, sizeof(float) * N);
+	cudaMalloc((float**) &d_c, sizeof(float) * N);
+	printf("Allocated memory on the Device for a, b, and c . . .\n");
+	
+	//CudaSafeCall(cudaDeviceSynchronize());
 
 	// create vectors.
-	for (unsigned int i = 0; i < N; i++) {
+	for (unsigned long long i = 0; i < N; i++) {
 		// actual values don't matter, as long as they're floats.
 		a[i] = 1.0f;
 		b[i] = 2.0f;
 	}
+	printf("Done assigning values.\n");
+	//CudaSafeCall( cudaMemset(a, 0, N * sizeof(float)) );
+	//CudaSafeCall( cudaMemset(b, 0, N * sizeof(float)) );
+
+	//CudaSafeCall( cudaDeviceSynchronize() );
 
 	// copy memory from CPU to GPU
-	cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(d_b, b, N * sizeof(float), cudaMemcpyHostToDevice);
+	//cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
+	//cudaMemcpy(d_b, b, N * sizeof(float), cudaMemcpyHostToDevice);
 
 	printf("Running on GPU\n");
 	for (int j = 0; j < iterations; j++) {
 
-		// start timer
-		cudaEventRecord(start);
-
 		// run the kernel
+		//cuda_add<<<nBlocks, nThreads>>>(d_a, d_b, d_c, N);
+		init<<<nBlocks, nThreads>>>(d_a, d_b, N);
+		CudaCheckError();
+
 		cuda_add<<<nBlocks, nThreads>>>(d_a, d_b, d_c, N);
-
-		// stop the timer
-		cudaEventRecord(stop);
-
+		CudaCheckError();
 		// copy the result from the device back to the host
 		cudaMemcpy(c, d_c, N * sizeof(float), cudaMemcpyDeviceToHost);
 
-		// sync the events
-		cudaEventSynchronize(stop);
-
-		// calc elapsed time and print to file
-		cudaEventElapsedTime(&millis, start, stop);
-		millis = millis / 1000;
-		fprintf(f, "%d,%f\n", N, millis);
-		avg = avg + millis;
+		// wait for device to finish
+		CudaSafeCall( cudaDeviceSynchronize() );
 
 		// calculate the error.
 		float maxError = 0.0f;
-		for (int i = 0; i < N; i++) {
-			maxError = abs(c[i] - a[0] - b[0]);
+		printf("Testing for errors . . . \n");
+		for (unsigned long long i = 0; i < N; i++) {
+			maxError = abs(c[i] - 2.0f - 1.0f);
 		}
 		if (maxError != 0.0) {
 			printf("Max error: %f\n", maxError);
 		}
 	}
-	
-
-	avg = (float) avg / (float) iterations;
-	printf("Average GPU Time: %fs \n", avg);
-
-	avg = 0;
-	FILE *g = fopen("cpu_add_times.txt", "a");
-
-	if (g == NULL)
-	{
-		printf("Error opening file!\n");
-		exit(1);
-	}
 
 	printf("Running on CPU\n");
 
-	clock_t cpu_start, cpu_stop;
-	double cpu_millis;
-	double cpu_avg = 0.0;
-
 	for (int j = 0; j < iterations; j++) {
-		cpu_start = clock();
-
 		cpu_add(a, b, c, N); // add the vectors
-
-		cpu_stop = clock();
-		cpu_millis = ((double)(cpu_stop - cpu_start)) / CLOCKS_PER_SEC;
-		fprintf(g, "%d,%f\n", N, cpu_millis); // print to file
-		cpu_avg = avg + cpu_millis;
 	}
 
-	cpu_avg = cpu_avg / (double)iterations;
-	printf("Average CPU Time %f: \n", cpu_avg);
-
 	printf("Done!\n");
-	fclose(g); // close the file
-
+	CudaSafeCall( cudaFree(d_a) );
+	CudaSafeCall( cudaFree(d_b) );
+	CudaSafeCall( cudaFree(d_c) );
 	// ============== END ==================
     return 0;
 }
