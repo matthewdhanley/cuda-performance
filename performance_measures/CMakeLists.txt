@@ -9,6 +9,7 @@ find_package(CUDA REQUIRED)
 # creating a cuda executable
 cuda_add_executable(
     adding
-    adding.cu)
+    kernel.cu
+    cuda_err_check.h)
 
 message("Done.")

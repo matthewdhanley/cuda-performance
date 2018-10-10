@@ -1,0 +1,3 @@
+/home/nvidia/git/cuda-performance/performance_measures/build/CMakeFiles/rebuild_cache.dir
+/home/nvidia/git/cuda-performance/performance_measures/build/CMakeFiles/adding.dir
+/home/nvidia/git/cuda-performance/performance_measures/build/CMakeFiles/edit_cache.dir

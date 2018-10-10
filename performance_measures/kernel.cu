@@ -1,6 +1,6 @@
 
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+//#include "cuda_runtime.h"
+//#include "device_launch_parameters.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -74,9 +74,9 @@ int main(){
 
 	// size of the array
     //const unsigned long long N = 1000000000;
-    //const unsigned long long N = 100000000;
-    const unsigned long long N = 1048576;
-    //const unsigned long long N = 10000;
+    const unsigned long long N = 100000000;
+    //const unsigned long long N = 1000000;
+   //const unsigned long long N = 10000;
 	printf("Array Size: %d\n", N);
 
 	// how many times to run it?
@@ -113,16 +113,17 @@ int main(){
 	printf("nBlocks: %d\n", nBlocks);
 
 	// allocate memory once before the iterations
-	//CudaSafeCall( cudaMallocManaged(&a, sizeof(float) * N) );
-	//CudaSafeCall( cudaMallocManaged(&b, sizeof(float) * N) );
-	//CudaSafeCall( cudaMallocManaged(&c, sizeof(float) * N) );
+//	float *a, *b, *c;
+//	CudaSafeCall( cudaMallocManaged(&a, sizeof(float) * N) );
+//	CudaSafeCall( cudaMallocManaged(&b, sizeof(float) * N) );
+//	CudaSafeCall( cudaMallocManaged(&c, sizeof(float) * N) );
 
-	//CudaSafeCall( cudaMalloc((void**) &d_a, sizeof(float) * N) );
-	//CudaSafeCall( cudaMalloc((void**) &d_b, sizeof(float) * N) );
-	//CudaSafeCall( cudaMalloc((void**) &d_c, sizeof(float) * N) );
-	cudaMalloc((float**) &d_a, sizeof(float) * N);
-	cudaMalloc((float**) &d_b, sizeof(float) * N);
-	cudaMalloc((float**) &d_c, sizeof(float) * N);
+	CudaSafeCall( cudaMalloc((void**) &d_a, sizeof(float) * N) );
+	CudaSafeCall( cudaMalloc((void**) &d_b, sizeof(float) * N) );
+	CudaSafeCall( cudaMalloc((void**) &d_c, sizeof(float) * N) );
+	//cudaMalloc((float**) &d_a, sizeof(float) * N);
+	//cudaMalloc((float**) &d_b, sizeof(float) * N);
+	//cudaMalloc((float**) &d_c, sizeof(float) * N);
 	printf("Allocated memory on the Device for a, b, and c . . .\n");
 	
 	//CudaSafeCall(cudaDeviceSynchronize());
@@ -140,19 +141,19 @@ int main(){
 	//CudaSafeCall( cudaDeviceSynchronize() );
 
 	// copy memory from CPU to GPU
-	//cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
-	//cudaMemcpy(d_b, b, N * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_b, b, N * sizeof(float), cudaMemcpyHostToDevice);
 
 	printf("Running on GPU\n");
 	for (int j = 0; j < iterations; j++) {
 
 		// run the kernel
-		//cuda_add<<<nBlocks, nThreads>>>(d_a, d_b, d_c, N);
-		init<<<nBlocks, nThreads>>>(d_a, d_b, N);
+		cuda_add<<<nBlocks, nThreads>>>(d_a, d_b, d_c, N);
+		//init<<<nBlocks, nThreads>>>(d_a, d_b, N);
 		CudaCheckError();
 
-		cuda_add<<<nBlocks, nThreads>>>(d_a, d_b, d_c, N);
-		CudaCheckError();
+		//cuda_add<<<nBlocks, nThreads>>>(a, b, c, N);
+		//CudaCheckError();
 		// copy the result from the device back to the host
 		cudaMemcpy(c, d_c, N * sizeof(float), cudaMemcpyDeviceToHost);
 
@@ -177,9 +178,7 @@ int main(){
 	}
 
 	printf("Done!\n");
-	CudaSafeCall( cudaFree(d_a) );
-	CudaSafeCall( cudaFree(d_b) );
-	CudaSafeCall( cudaFree(d_c) );
+
 	// ============== END ==================
     return 0;
 }
