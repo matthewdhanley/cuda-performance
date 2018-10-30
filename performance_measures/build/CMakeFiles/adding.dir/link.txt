@@ -1,0 +1,1 @@
+/usr/bin/c++    -rdynamic CMakeFiles/adding.dir/adding_generated_kernel.cu.o  -o adding /usr/local/cuda-10.0/lib64/libcudart_static.a -lpthread -ldl -lrt 

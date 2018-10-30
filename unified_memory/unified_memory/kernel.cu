@@ -1,6 +1,6 @@
 
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
+//#include "cuda_runtime.h"
+//#include "device_launch_parameters.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -48,7 +48,6 @@ int main() {
 	//const unsigned long long N = 100000000;
 	//const unsigned long long N = 1000000;
 	const unsigned long long N = 2;
-	printf("Array Size: %d\n", N);
 
 	// how many times to run it?
 	int iterations = 1;
@@ -73,6 +72,7 @@ int main() {
 	int nBlocks = (N + nThreads - 1) / nThreads;
 	printf("nBlocks: %d\n", nBlocks);
 
+<<<<<<< HEAD:unified_memory/unified_memory/kernel.cu
 	float *a, *b, *c;
 	a = 0;
 	b = 0;
@@ -99,6 +99,23 @@ int main() {
 	//float *testp = (float *) ptrAttr.hostPointer;
 
 	//printf("data: %f\n", testp[0]);
+=======
+	// allocate memory once before the iterations
+//	float *a, *b, *c;
+//	CudaSafeCall( cudaMallocManaged(&a, sizeof(float) * N) );
+//	CudaSafeCall( cudaMallocManaged(&b, sizeof(float) * N) );
+//	CudaSafeCall( cudaMallocManaged(&c, sizeof(float) * N) );
+
+	CudaSafeCall( cudaMalloc((void**) &d_a, sizeof(float) * N) );
+	CudaSafeCall( cudaMalloc((void**) &d_b, sizeof(float) * N) );
+	CudaSafeCall( cudaMalloc((void**) &d_c, sizeof(float) * N) );
+	//cudaMalloc((float**) &d_a, sizeof(float) * N);
+	//cudaMalloc((float**) &d_b, sizeof(float) * N);
+	//cudaMalloc((float**) &d_c, sizeof(float) * N);
+	printf("Allocated memory on the Device for a, b, and c . . .\n");
+	
+	//CudaSafeCall(cudaDeviceSynchronize());
+>>>>>>> 0346426fe8f386de9522d0138fc7104f2659b7ed:performance_measures/kernel.cu
 
 	// create vectors.
 	for (unsigned long long i = 0; i < N; i++) {
@@ -116,6 +133,7 @@ int main() {
 	printf("Pointer to b: 0x%p\n", b);
 	printf("Pointer to c: 0x%p\n", c);
 
+<<<<<<< HEAD:unified_memory/unified_memory/kernel.cu
 
 	//CudaSafeCall( cudaMalloc((void**) &d_a, sizeof(float) * N) );
 	//CudaSafeCall( cudaMalloc((void**) &d_b, sizeof(float) * N) );
@@ -123,14 +141,31 @@ int main() {
 
 	//CudaSafeCall( cudaMemset(a, 0, N * sizeof(float)) );
 	//CudaSafeCall( cudaMemset(b, 0, N * sizeof(float)) );
+=======
+	// copy memory from CPU to GPU
+	cudaMemcpy(d_a, a, N * sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_b, b, N * sizeof(float), cudaMemcpyHostToDevice);
+>>>>>>> 0346426fe8f386de9522d0138fc7104f2659b7ed:performance_measures/kernel.cu
 
 	printf("Running on GPU\n");
 	for (int j = 0; j < iterations; j++) {
 
 		// run the kernel
+<<<<<<< HEAD:unified_memory/unified_memory/kernel.cu
 		cuda_add <<< nBlocks, nThreads >>> (a, b, c, N);
 		CudaCheckError();
 
+=======
+		cuda_add<<<nBlocks, nThreads>>>(d_a, d_b, d_c, N);
+		//init<<<nBlocks, nThreads>>>(d_a, d_b, N);
+		CudaCheckError();
+
+		//cuda_add<<<nBlocks, nThreads>>>(a, b, c, N);
+		//CudaCheckError();
+		// copy the result from the device back to the host
+		cudaMemcpy(c, d_c, N * sizeof(float), cudaMemcpyDeviceToHost);
+
+>>>>>>> 0346426fe8f386de9522d0138fc7104f2659b7ed:performance_measures/kernel.cu
 		// wait for device to finish
 		CudaSafeCall(cudaDeviceSynchronize());
 
@@ -153,10 +188,15 @@ int main() {
 	CudaSafeCall( cudaFree(b) );
 	CudaSafeCall(cudaDeviceSynchronize());
 
+<<<<<<< HEAD:unified_memory/unified_memory/kernel.cu
 	CudaSafeCall( cudaFree(c) );
 	//free(a);
 	//free(b);
 	//free(c);
+=======
+	printf("Done!\n");
+
+>>>>>>> 0346426fe8f386de9522d0138fc7104f2659b7ed:performance_measures/kernel.cu
 	// ============== END ==================
 	return 0;
 }
