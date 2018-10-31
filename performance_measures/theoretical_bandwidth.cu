@@ -27,9 +27,10 @@ void effectiveBandwidth(int deviceId, int N) {
 
 	// ========= GET DEVICE PROPERTIES =====================
 	cudaDeviceProp prop;
-	cudaGetDeviceProperties(&prop, deviceId); // this allows us to query the device
+	CudaSafeCall(cudaGetDeviceProperties(&prop, deviceId)); // this allows us to query the device
 									  // if there are multiple devices, you can
 									  // loop thru them by changing the 0
+	CudaCheckError();
 
 	float *x, *y, *d_x, *d_y, *d_y_ref, a, *y_ref;
 
@@ -39,7 +40,7 @@ void effectiveBandwidth(int deviceId, int N) {
 	y_ref = (float*) malloc(N * sizeof(float));
 
 	// allocate space on the device
-	cudaMalloc(&d_x, N * sizeof(float));
+	CudaSafeCall(cudaMalloc(&d_x, N * sizeof(float)));
 	cudaMalloc(&d_y, N * sizeof(float));
 	cudaMalloc(&d_y_ref, N * sizeof(float));
 
@@ -58,12 +59,14 @@ void effectiveBandwidth(int deviceId, int N) {
 
 	// set up the timer
 	cudaEvent_t start, stop;
-	cudaEventCreate(&start);
-	cudaEventCreate(&stop);
+	CudaSafeCall(cudaEventCreate(&start));
+	CudaSafeCall(cudaEventCreate(&stop));
+	CudaCheckError();
 
 	// copy the memory to the device
-	cudaMemcpy(d_x, x, N * sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(d_y, y, N * sizeof(float), cudaMemcpyHostToDevice);
+	CudaSafeCall(cudaMemcpy(d_x, x, N * sizeof(float), cudaMemcpyHostToDevice));
+	CudaSafeCall(cudaMemcpy(d_y, y, N * sizeof(float), cudaMemcpyHostToDevice));
+	CudaCheckError();
 
 	// using max number of threads in the x dim possible
 	int nThreads = 128;
@@ -73,7 +76,7 @@ void effectiveBandwidth(int deviceId, int N) {
 
 	// warm up
 	effective_bandwidth_kernel <<< nBlocks, nThreads >>> (a, d_x, d_y, N);
-	cudaDeviceSynchronize();
+	CudaSafeCall(cudaDeviceSynchronize());
 	CudaCheckError();
 
 	// start the timer
