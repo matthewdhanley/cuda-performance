@@ -1,0 +1,39 @@
+=============================================================
+GPU: Quadro K420
+Compute Capability: 3.0
+Max Threads per block: 1024
+Max Grid Size: 2147483647 x 65535 x 65535
+Clock Rate: 875500 MHz
+Number of SMs: 1
+Shared Memory Per Block: 49152
+Shared Memory Per SM: 49152
+Registers per block: 65536
+Registers per SM: 65536
+Warp Size: 32
+=============================================================
+
+                  ROUTINE         BANDWIDTH (GB/s)
+         Theoretical              288.38
+ Effective Bandwidth              171.14
+                Threads/Block: 128, Number of Blocks: 7813 
+           CUDA Copy               20.49
+                Threads/Block: 128, Number of Blocks: 7813 
+           Naive Add               20.86
+                Threads/Block: 128, Number of Blocks: 7813 
+   Naive Matrix Copy               18.73
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+     Naive Transpose                5.97
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+ Transpose w/ Shared                9.27
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+Transpose no bank conf.               15.54
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+      Naive Mat Mult               37.04
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,32), Number of Blocks: (32,32) 
+=============================================================
+
