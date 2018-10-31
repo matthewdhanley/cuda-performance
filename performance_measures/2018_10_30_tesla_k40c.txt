@@ -1,0 +1,39 @@
+=============================================================
+GPU: Tesla K40c
+Compute Capability: 3.5
+Max Threads per block: 1024
+Max Grid Size: 2147483647 x 65535 x 65535
+Clock Rate: 745000 MHz
+Number of SMs: 15
+Shared Memory Per Block: 49152
+Shared Memory Per SM: 49152
+Registers per block: 65536
+Registers per SM: 65536
+Warp Size: 32
+=============================================================
+
+                  ROUTINE         BANDWIDTH (GB/s)
+         Theoretical              288.38
+ Effective Bandwidth              171.45
+                Threads/Block: 128, Number of Blocks: 7813 
+           CUDA Copy              184.32
+                Threads/Block: 128, Number of Blocks: 7813 
+           Naive Add              171.74
+                Threads/Block: 128, Number of Blocks: 7813 
+   Naive Matrix Copy              161.15
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+     Naive Transpose               66.16
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+ Transpose w/ Shared              105.96
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+Transpose no bank conf.              152.96
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+      Naive Mat Mult              468.56
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,32), Number of Blocks: (32,32) 
+=============================================================
+
