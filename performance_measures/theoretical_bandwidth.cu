@@ -74,6 +74,7 @@ void effectiveBandwidth(int deviceId, int N) {
 	// warm up
 	effective_bandwidth_kernel <<< nBlocks, nThreads >>> (a, d_x, d_y, N);
 	cudaDeviceSynchronize();
+	CudaCheckError();
 
 	// start the timer
 	cudaEventRecord(start,0);
@@ -81,7 +82,6 @@ void effectiveBandwidth(int deviceId, int N) {
 	for (int rep = 0; rep < NUM_REPS; rep++) {
 		effective_bandwidth_kernel <<< nBlocks, nThreads >>> (a, d_x, d_y, N);
 	}
-
 	// stop the timer
 	cudaEventRecord(stop,0);
 
@@ -90,8 +90,10 @@ void effectiveBandwidth(int deviceId, int N) {
 
 	// sync the events
 	cudaEventSynchronize(stop);
+	CudaCheckError();
 	float millis = 0;
 	cudaEventElapsedTime(&millis, start, stop);
+	CudaCheckError();
 	// ==================================
 	// ROUTINE: Effictive Bandwidth
 	printf("%20s", "Effective Bandwidth");
