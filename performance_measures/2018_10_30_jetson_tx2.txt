@@ -1,0 +1,39 @@
+=============================================================
+GPU: NVIDIA Tegra X2
+Compute Capability: 6.2
+Max Threads per block: 1024
+Max Grid Size: 2147483647 x 65535 x 65535
+Clock Rate: 1300500 MHz
+Number of SMs: 2
+Shared Memory Per Block: 49152
+Shared Memory Per SM: 65536
+Registers per block: 32768
+Registers per SM: 65536
+Warp Size: 32
+=============================================================
+
+                  ROUTINE         BANDWIDTH (GB/s)
+         Theoretical               51.20
+ Effective Bandwidth               27.55
+                Threads/Block: 128, Number of Blocks: 7813 
+           CUDA Copy               28.05
+                Threads/Block: 128, Number of Blocks: 7813 
+           Naive Add               34.23
+                Threads/Block: 128, Number of Blocks: 7813 
+   Naive Matrix Copy               31.30
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+     Naive Transpose                4.49
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+ Transpose w/ Shared               12.30
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+Transpose no bank conf.               35.30
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+      Naive Mat Mult               16.81
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,32), Number of Blocks: (32,32) 
+=============================================================
+

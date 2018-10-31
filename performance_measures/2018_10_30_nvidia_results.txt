@@ -1,0 +1,39 @@
+=============================================================
+GPU: Xavier
+Compute Capability: 7.2
+Max Threads per block: 1024
+Max Grid Size: 2147483647 x 65535 x 65535
+Clock Rate: 1500000 MHz
+Number of SMs: 8
+Shared Memory Per Block: 49152
+Shared Memory Per SM: 98304
+Registers per block: 65536
+Registers per SM: 65536
+Warp Size: 32
+=============================================================
+
+                  ROUTINE         BANDWIDTH (GB/s)
+         Theoretical               96.00
+ Effective Bandwidth               32.38
+                Threads/Block: 128, Number of Blocks: 7813 
+           CUDA Copy               50.78
+                Threads/Block: 128, Number of Blocks: 7813 
+           Naive Add               50.75
+                Threads/Block: 128, Number of Blocks: 7813 
+   Naive Matrix Copy               43.07
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+     Naive Transpose                7.28
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+ Transpose w/ Shared               19.33
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+Transpose no bank conf.               36.93
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+      Naive Mat Mult              397.71
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,32), Number of Blocks: (32,32) 
+=============================================================
+
