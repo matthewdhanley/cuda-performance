@@ -1,0 +1,39 @@
+=============================================================
+GPU: GeForce GTX 1070
+Compute Capability: 6.1
+Max Threads per block: 1024
+Max Grid Size: 2147483647 x 65535 x 65535
+Clock Rate: 1695000 MHz
+Number of SMs: 16
+Shared Memory Per Block: 49152
+Shared Memory Per SM: 98304
+Registers per block: 65536
+Registers per SM: 65536
+Warp Size: 32
+=============================================================
+
+                  ROUTINE         BANDWIDTH (GB/s)
+         Theoretical              256.26
+ Effective Bandwidth              164.38
+                Threads/Block: 128, Number of Blocks: 7813 
+           CUDA Copy              161.78
+                Threads/Block: 128, Number of Blocks: 7813 
+           Naive Add              163.74
+                Threads/Block: 128, Number of Blocks: 7813 
+   Naive Matrix Copy              157.84
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+     Naive Transpose               92.77
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+ Transpose w/ Shared              151.42
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+Transpose no bank conf.              162.30
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,8), Number of Blocks: (32,32) 
+      Naive Mat Mult             1205.16
+                   Matrix Size: 1024 x 1024
+                Threads/Block: (32,32), Number of Blocks: (32,32) 
+=============================================================
+
